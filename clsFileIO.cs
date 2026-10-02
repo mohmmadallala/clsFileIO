@@ -470,7 +470,7 @@ namespace ConsoleApp35
             return Result;
 
         }
-        public (int, int, int) ReturnLocation(string str, bool Reverse = false, bool CaseSenstive = true)
+        public (int, int, int) ReturnLocation(string str, bool Reverse , bool CaseSenstive)
         {
             if (!confirmFileExisted())
             {
@@ -483,12 +483,12 @@ namespace ConsoleApp35
             int indexStarted = -1;
             int LastIndex = -1;
             int counter = 0;
-            log.WriteLine("Str --> "+ str);
+            
             List<string> list = ExtractContainFile();
             if (Reverse)
             {
                 list.Reverse();
-                // list.ForEach((x) => log.WriteLine(x));
+                
                 counter = list.Count - 1;
             }
 
@@ -499,6 +499,7 @@ namespace ConsoleApp35
                 {
                     temp = i.ToLower();
                     str = str.ToLower();
+                   
                 }
                 if (temp.Contains(str))
                 {
@@ -506,7 +507,7 @@ namespace ConsoleApp35
                     char? perv = '*';
                     char? next = '*';
                     char?lastchar= '*';
-                    log.WriteLine($"Size : {temp.Length} | {temp}");
+                   
                     for (int ch = 0; ch < temp.Length; ch++)
                     {
                         if (ch + 1 < temp.Length-1)
@@ -520,7 +521,7 @@ namespace ConsoleApp35
                       
                         if(ch + (str.Length-1) < temp.Length-2)
                         {
-                            lastchar = temp[ch + (str.Length-2)];
+                            lastchar = temp[ch + (str.Length)];
                            
                         }
                         else
@@ -539,10 +540,9 @@ namespace ConsoleApp35
                             {
                                 Resultstring += temp[w];
                             }
-                            log.WriteLine("Word Serach After Mani: " + Resultstring);
-                            log.WriteLine("Word Serach : " + Orgstr);
-                            log.WriteLine($"Line Number: {lineNumber}, Index Started: {indexStarted}, Last Index: {LastIndex}");
-                            return (lineNumber,  indexStarted, LastIndex);
+                            log.WriteLine(Resultstring+" Char : "+ str[str.Length - 1] + " and last char "+lastchar);
+                            return (lineNumber, indexStarted, LastIndex);
+                            
                         }
                         else
                         {
@@ -643,25 +643,41 @@ namespace ConsoleApp35
             }
             return R;
         }
-        private void HandlerReplaceWords(string wordnew, string wordReplaced, int line, int index, int lastindex)
+        private void HandlerReplaceWords(string wordnew, string wordReplaced, int line, int index, int lastindex, bool CaseSenstive)
         {
-
+            
             string R = "";
             int deffer = lastindex - index;
             List<string> list = ExtractContainFile();
             List<string> listTemp = new List<string>();
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i].Contains(wordReplaced))
+
+                string temp = list[i];
+                if (!CaseSenstive)
                 {
-                    string temp = list[i];
+                    temp=temp.ToLower();
+                    wordReplaced= wordReplaced.ToLower();
+                }
+                if (temp.Contains(wordReplaced))
+                {
+                    
+                  
                     string finalString = "";
                     for (int ch = 0; ch < temp.Length; ch++)
                     {
+                        
                         if (ch == index && ch + deffer == lastindex)
                         {
-                            finalString = temp.Remove(ch, deffer + 1);
-                            finalString = finalString.Insert(ch, wordnew);
+                            if (wordReplaced.Contains(" ")) {
+                                finalString = temp.Remove(ch + 1, deffer + 1);
+                                finalString = finalString.Insert(ch + 1, wordnew); 
+                            }
+                            else
+                            {
+                                finalString = temp.Remove(ch, deffer + 1);
+                                finalString = finalString.Insert(ch , wordnew);
+                            }
                             listTemp.Add(finalString);
 
                             for (int j = line; j <= list.Count - 1; j++)
@@ -684,7 +700,7 @@ namespace ConsoleApp35
                 }
             }
         }
-        public void ReplaceWord(string wordnew, string wordReplaced, bool AllWords = false)
+        public void ReplaceWord(string wordnew, string wordReplaced, bool AllWords =false,bool caseSensitive=false)
         {
             if (wordnew.Contains(wordReplaced))
             {
@@ -703,7 +719,7 @@ namespace ConsoleApp35
                 {
 
 
-                    var items = ReturnLocation(wordReplaced, false, false);
+                    var items = ReturnLocation(wordReplaced, false, caseSensitive);
                     line = items.Item1;
                     index = items.Item2;
                     lastindex = items.Item3;
@@ -718,7 +734,8 @@ namespace ConsoleApp35
                         return;
                     }
                     counter++;
-                    HandlerReplaceWords(wordnew, wordReplaced, line, index, lastindex);
+                    log.WriteLine("Line Access");
+                    HandlerReplaceWords(wordnew, wordReplaced, line, index, lastindex, caseSensitive);
 
                 }
                 while (true);
@@ -727,7 +744,7 @@ namespace ConsoleApp35
             else
             {
 
-                var items = ReturnLocation(wordReplaced, false, false);
+                var items = ReturnLocation(wordReplaced, false, caseSensitive);
                 line = items.Item1;
                 index = items.Item2;
                 lastindex = items.Item3;
@@ -738,7 +755,7 @@ namespace ConsoleApp35
                     log.WriteLine("Not found Location Word in File");
                     return;
                 }
-                HandlerReplaceWords(wordnew, wordReplaced, line, index, lastindex);
+                HandlerReplaceWords(wordnew, wordReplaced, line, index, lastindex,caseSensitive);
             }
                
         }
